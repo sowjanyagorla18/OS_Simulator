@@ -154,4 +154,5 @@ This command removes generated files from the current directory that match the s
 
 ## Author
 
-Operating Systems Assignment – SCISSOS
+gorla padma venkata sowjanya
+d. vishnu suprita
