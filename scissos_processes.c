@@ -183,15 +183,6 @@ ScisSosProcess *scissos_proc_create(char *name,int process_size,int process_type
     pr_times[pid].run_time.tv_sec = 0;
     pr_times[pid].run_time.tv_usec = 0;
 
-
-    printf(
-        "Created process: PID=%d Name=%s Size=%d\n",
-        pid,
-        process->_pname,
-        process->_psize
-    );
-
-
     return process;
 }
 
@@ -228,8 +219,6 @@ static void delete_process(int pid)
     _proctable[pid] = NULL;
 
     free(pcb);
-
-    printf("Process PID=%d terminated.\n",pid);
 }
 
 
@@ -298,7 +287,6 @@ int scissos_proc_run(int pid)
         );
         creator_remaining--;
 
-        printf("ProcessCreator created %s. ""Remaining = %d\n",name, creator_remaining );
 
         if (creator_remaining == 0)
         {
@@ -357,7 +345,6 @@ int scissos_proc_run(int pid)
 
         if (instruction->_syscall == 1)
         {
-            printf("PID %d stopped at PC %d ""(LONG system call)\n",pid,pcb->pc - 1);
             break;
         }
     }
@@ -366,7 +353,6 @@ int scissos_proc_run(int pid)
     run_diff = _diff_times( end_time,start_time);
     pr_times[pid].run_time =*_add_times(pr_times[pid].run_time,*run_diff);
 
-    printf("PID %d executed %d instructions. PC=%d\n", pid,executed, pcb->pc);
 
 
     if (pcb->pc >= pcb->size)

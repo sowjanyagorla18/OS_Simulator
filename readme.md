@@ -2,50 +2,22 @@
 
 ## Overview
 
-This project implements a simple operating system simulation using C. It consists of multiple source files that are compiled separately and linked together to generate the executable program `scissos`.
+SCISSOS is a simple operating system simulator implemented in C. It demonstrates process creation, process execution, ready-queue management, CPU scheduling, and process timing measurements.
 
-## Prerequisites
+The simulator supports three scheduling algorithms:
 
-Make sure the following are installed on your system:
+- **First-Come, First-Served (FCFS):** Selects the process at the front of the ready queue.
+- **Priority Scheduling:** Selects the ready process with the smallest numerical priority value.
+- **Longest Job First (LJF):** Selects the ready process with the largest remaining amount of work.
 
-- **GCC compiler** – to compile the C source files.
-- **Terminal** – to execute the compilation and run commands.
-- **Linux or WSL** – recommended for running the program using the commands below.
+The scheduling algorithm is selected through a command-line argument. The simulator displays a compact dispatch table showing process execution progress and a final table containing process timing measurements.
 
-To check whether GCC is installed, run:
 
-```bash
-gcc --version
-```
+## Compilation and Execution
 
-## Project Files
+### Step 1: Compile the source files
 
-Ensure that the following files are present in the project directory:
-
-```text
-project/
-├── scissos_processes.c
-├── scissos_os.c
-├── scheduler.c
-├── main.c
-└── README.md
-```
-
-## How to Compile and Run
-
-### Step 1: Open the Terminal
-
-Navigate to the directory containing the source files:
-
-```bash
-cd path/to/project
-```
-
-Replace `path/to/project` with the actual path to your project directory.
-
-### Step 2: Compile the Source Files
-
-Compile each C source file separately using GCC:
+Compile each source file separately:
 
 ```bash
 gcc -Wall -Wextra -std=c11 -c scissos_processes.c -o scissos_processes.o
@@ -54,16 +26,7 @@ gcc -Wall -Wextra -std=c11 -c scheduler.c -o scheduler.o
 gcc -Wall -Wextra -std=c11 -c main.c -o main.o
 ```
 
-**Explanation:**
-
-- `gcc` invokes the GNU C compiler.
-- `-Wall` enables common compiler warnings.
-- `-Wextra` enables additional warnings.
-- `-std=c11` specifies the C11 standard.
-- `-c` compiles the source file into an object file without linking.
-- `-o` specifies the name of the output file.
-
-This step generates the following object files:
+These commands generate four object files:
 
 ```text
 scissos_processes.o
@@ -72,7 +35,7 @@ scheduler.o
 main.o
 ```
 
-### Step 3: Link the Object Files
+### Step 2: Link the object files
 
 Combine the object files to create the executable:
 
@@ -80,77 +43,91 @@ Combine the object files to create the executable:
 gcc scissos_processes.o scissos_os.o scheduler.o main.o -o scissos
 ```
 
-This command links the compiled object files and produces an executable named `scissos`.
+This creates an executable named `scissos`.
 
-### Step 4: Run the Program
+### Step 3: Run the simulator
 
-Execute the program using:
+The program requires exactly one command-line argument specifying the scheduling algorithm.
 
-```bash
-./scissos
-```
-
-The program runs in the terminal, and its output is displayed on the screen.
-
-### Step 5: Save the Output to a File
-
-To redirect the program's output to a text file, run:
+**Run FCFS:**
 
 ```bash
-./scissos > output.txt
+./scissos fcfs
 ```
 
-This command saves the program's standard output in `output.txt` instead of displaying it in the terminal.
-
-**Note:** If `output.txt` already exists, its contents will be overwritten.
-
-To display the output saved in the file, use:
+**Run Priority Scheduling:**
 
 ```bash
-cat output.txt
+./scissos priority
 ```
 
-To append new output without overwriting the existing contents, use:
+**Run LJF:**
 
 ```bash
-./scissos >> output.txt
+./scissos ljf
 ```
 
-## Rebuilding the Project
+If an invalid argument is supplied, the program displays a usage or error message.
 
-If you modify any source file, recompile the corresponding object file and repeat the linking step.
+## Simulation Output
 
-For example, if `scheduler.c` is modified:
+The simulator displays the selected scheduling algorithm, a dispatch table, and the final process timing measurements.
+
+### Dispatch table
+
+The dispatch table records each scheduling decision.
+
+| Column | Description |
+|---|---|
+| `Dispatch` | Sequential number of the scheduling decision. |
+| `PID` | Process ID selected for execution. |
+| `PC Before` | Program counter before the execution turn. |
+| `PC After` | Program counter after the execution turn. |
+| `Result` | Indicates whether the process remains ready or has terminated. |
+
+The program counter (PC) represents the position of the next instruction to execute.
+
+A process can be selected multiple times if it remains ready after an execution turn.
+
+### Process timing table
+
+At the end of the simulation, the program displays timing measurements for the created processes.
+
+| Column | Description |
+|---|---|
+| `PID` | Process identifier. |
+| `Creation` | Time elapsed between simulator initialization and process creation. |
+| `Response` | Time from process creation until its first execution. |
+| `Waiting` | Estimated accumulated waiting time, calculated by the simulator. |
+| `Running` | Accumulated wall-clock time measured during process execution. |
+
+The timing values are displayed in seconds.
+
+
+## Saving Output to a File
+
+To save the output of a particular scheduling run:
 
 ```bash
-gcc -Wall -Wextra -std=c11 -c scheduler.c -o scheduler.o
-gcc scissos_processes.o scissos_os.o scheduler.o main.o -o scissos
+./scissos fcfs > output_fcfs.txt
 ```
 
-Then run the executable again:
+To view the saved output:
 
 ```bash
-./scissos > output.txt
+cat output_fcfs.txt
 ```
 
-## Cleaning Generated Files
-
-To remove the generated object files, executable, and output file, run:
+To append another run's output without overwriting the file:
 
 ```bash
-rm -f *.o scissos output.txt
+./scissos priority > output_priority.txt
 ```
 
-This command removes generated files from the current directory that match the specified names or patterns. It does not delete the original C source files or this README.
+The `>` operator overwrites an existing output file, while `>>` appends to it.
 
-## Troubleshooting
+To save the LJF output separately:
 
-- **`gcc: command not found`** – Install GCC or configure your compiler path.
-- **`No such file or directory`** – Verify that you are in the correct project directory and that all source files exist.
-- **`undefined reference` errors** – Check that all required object files are included in the linking command and that the required function definitions are available.
-- **Compiler warnings** – Review warnings carefully and fix any issues where necessary.
-- **Permission denied when running `./scissos`** – Check the file permissions and confirm that the executable was created successfully.
-
-## Author
-
-Operating Systems Assignment – SCISSOS
+```bash
+./scissos ljf > output_ljf.txt
+```

@@ -21,7 +21,9 @@
 #define MAXPROCNAME 80
 
 /* scheduling algorithm */
-#define SCHEDFUNC   sched_fcfs
+#define SCHED_FCFS      1
+#define SCHED_PRIORITY  2
+#define SCHED_LJF       3
 
 
 //Constants for Process States 
@@ -130,7 +132,16 @@ void scissos_call_scheduler(void);
 void scissos_print_timings(void);
 
 //Scheduling algorithm
+typedef int (*SchedulerFunc)(int readyQ[], int qsize);
+
+extern SchedulerFunc scheduler_fn;
+extern int scheduler_mode;
+
+void scissos_set_scheduler(SchedulerFunc fn, int mode);
+
 int sched_fcfs(int readyQ[], int qsize);
+int sched_priority(int readyQ[], int qsize);
+int sched_ljf(int readyQ[], int qsize);
 
 //Memory management
 int *memory_gen_addrefstrings(int, int);

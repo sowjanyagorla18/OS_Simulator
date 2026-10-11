@@ -134,12 +134,18 @@ static void update_ready_queue(int *qsize)
     }
 }
 
+
 void scissos_call_scheduler(void)
 {
     int qsize = 0;
     int i;
     int selectedPID;
+    int dispatch_no = 0;
     int pid;
+    int pc_before;
+    int pc_after;
+    int total_size;
+    const char *result;
     ScisSosPCB *pcb;
 
     for (i = 0; i < MAXPROC; i++)
@@ -149,21 +155,30 @@ void scissos_call_scheduler(void)
 
     update_ready_queue(&qsize);
 
+    printf("\nScheduling Algorithm: %s\n",
+           scheduler_mode == SCHED_FCFS ? "FCFS" :
+           scheduler_mode == SCHED_PRIORITY ? "Priority" :
+           scheduler_mode == SCHED_LJF ? "LJF" : "Unknown");
+
+    printf("Dispatch | PID | PC Before | PC After | Result\n");
+    printf("------------------------------------------------\n");
 
     while (1)
     {
-
         update_ready_queue(&qsize);
+
         if (qsize == 0)
         {
             break;
         }
-        selectedPID = SCHEDFUNC(_readyQ, qsize);
+
+        selectedPID = scheduler_fn(_readyQ, qsize);
 
         if (selectedPID == EMPTY)
         {
             break;
         }
+
         pid = selectedPID;
 
         for (i = 0; i < qsize - 1; i++)
@@ -172,7 +187,6 @@ void scissos_call_scheduler(void)
         }
 
         qsize--;
-
         _readyQ[qsize] = EMPTY;
 
         if (_proctable[pid] == NULL)
@@ -182,28 +196,40 @@ void scissos_call_scheduler(void)
 
         pcb = _proctable[pid];
 
+        pc_before = pcb->pc;
+        total_size = pcb->size;
 
         pcb->ps_state = PS_RUN;
-
-        printf("\nScheduler selected PID %d\n", pid);
 
         scissos_proc_run(pid);
 
         if (_proctable[pid] != NULL)
         {
             pcb = _proctable[pid];
+            pc_after = pcb->pc;
+            result = "READY";
 
-            if (pcb->ps_state == PS_RDY)
+            if (pcb->ps_state == PS_RDY && qsize < MAXPROC)
             {
-                if (qsize < MAXPROC)
-                {
-                    _readyQ[qsize] = pid;
-                    qsize++;
-                }
+                _readyQ[qsize] = pid;
+                qsize++;
             }
         }
+        else
+        {
+            /* The process has been deleted, so use its saved size. */
+            pc_after = total_size;
+            result = "TERMINATED";
+        }
+
+        printf("%8d | %3d | %9d | %8d | %s\n",
+               ++dispatch_no, pid, pc_before, pc_after, result);
     }
+
+    printf("------------------------------------------------\n");
+    printf("Scheduling completed.\n");
 }
+
 
 void scissos_print_timings(void)
 {
