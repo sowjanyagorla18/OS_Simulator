@@ -1,8 +1,8 @@
-# SCISSOS – Operating Systems Assignment
+Operating Systems Assignment
 
 ## Overview
 
-SCISSOS is a simple operating system simulator implemented in C. It demonstrates process creation, process execution, ready-queue management, CPU scheduling, and process timing measurements.
+It is a simple operating system simulator implemented in C. It demonstrates process creation, process execution, ready-queue management, CPU scheduling, and process timing measurements.
 
 The simulator supports three scheduling algorithms:
 
@@ -124,7 +124,7 @@ To append another run's output without overwriting the file:
 ./scissos priority > output_priority.txt
 ```
 
-The `>` operator overwrites an existing output file, while `>>` appends to it.
+
 
 To save the LJF output separately:
 
